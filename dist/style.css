@@ -1,0 +1,25 @@
+.btn-warning {
+    position: relative;
+    padding: 11px 16px;
+    font-size: 15px;
+    line-height: 1.5;
+    border-radius: 3px;
+    color: #fff;
+    background-color: #00acec;
+    border: 0;
+    overflow: hidden;
+    transition: 0.2s;
+  }
+  
+  .btn-warning input[type="file"] {
+    cursor: pointer;
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: scale(5);
+    opacity: 0;
+  }
+  
+  .btn-warning:hover {
+    background: #1f2937;
+  }
