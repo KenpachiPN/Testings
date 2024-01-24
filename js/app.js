@@ -8,14 +8,11 @@ document.addEventListener('DOMContentLoaded', e => {
     const deposito = document.querySelector('#deposito');
     const multimedia = document.querySelector('#multimedia');
     const recaptchaResponse = () => grecaptcha.getResponse();
-    const captchaDiv = document.querySelector('.g-recaptcha');
     const icon = document.querySelector('#textMulti');
     const btnSubmit = document.querySelector('#formulario button[type="submit"]');
     const formulario = document.querySelector('#formulario');
     const spinner = document.querySelector('#spinner');
 
-    console.log('djhdf');
-    console.log('mmx');
 
     //Objeto que guardará los datos y los convierto a json
     const datosMultimedia = {
@@ -24,26 +21,6 @@ document.addEventListener('DOMContentLoaded', e => {
 
     e.preventDefault();
 
-    const validacionForm = {
-        user: false,
-        pass: false,
-        deposit: false,
-        multi: false,
-        captcha: false
-    }
-
-    const validCaptcha = () => {
-        console.log('validado pa');
-        validacionForm.captcha = true;
-    }
-
-    const captchaOption = {
-        key: '6LcC2a8nAAAAAFDgI8YEFCOvfkYKk7Og0WQ8fuj-',
-        callback: validCaptcha
-    }
-
-    const captchaComp = () => grecaptcha.render(captchaDiv, captchaOption);
-    console.log(captchaComp);
 
     // Limpiamos el formulario y reiniciamos el objeto
     const limpiarForm = () => {
@@ -54,8 +31,19 @@ document.addEventListener('DOMContentLoaded', e => {
         icon.textContent = 'Subir archivos';
     }
 
+    // Revision del objeto
+    const validarForm = () => {
+        const key = Object.keys(datosMultimedia);
+        if (key.length === 4) {
+            btnSubmit.disabled = false;
+            btnSubmit.classList.remove('opacity-50');
+        } else {
+            btnSubmit.disabled = true;
+            btnSubmit.classList.add('opacity-50');
+        }
+    }
 
-    // // Validamos los campos de usuario y contraseña
+    // Validamos los campos de usuario y contraseña
     const validarCampos = e => {
         if (e.target.value.trim() === '') {
             Swal.fire({
@@ -68,13 +56,13 @@ document.addEventListener('DOMContentLoaded', e => {
         }
         //Asignar los valores al objeto
         datosMultimedia[e.target.name] = e.target.value.trim().toLowerCase();
-        console.log(validacionForm);
+        validarForm();
     }
 
 
     // Agregamos la función de validar
     user.addEventListener('blur', validarCampos);
-    passwd.addEventListener('blur', validarCampos, validacionForm.pass = true);
+    passwd.addEventListener('blur', validarCampos);
 
     //Envio del formulario 
     const envioFormulario = e => {
@@ -90,6 +78,8 @@ document.addEventListener('DOMContentLoaded', e => {
                 text: "Completa la verificación de reCAPTCHA",
                 footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
             });
+            spinner.classList.add('hidden');
+            spinner.classList.remove('flex');
             return;
         }
         // Asigancion del valor
@@ -123,7 +113,7 @@ document.addEventListener('DOMContentLoaded', e => {
             return;
         }
         datosMultimedia.deposit = e.target.value;
-        validacionForm.deposit = true;
+        validarForm();
     });
 
     // Agregamos el evento para cuando suban un archivo
@@ -144,7 +134,8 @@ document.addEventListener('DOMContentLoaded', e => {
         }
         icon.textContent = `Archivo subido: ${nombreArchivo}`;
         datosMultimedia.multi = e.target.value;
-        validacionForm.multi = true;
+        console.log(datosMultimedia);
+        validarForm();
     });
 });
 
