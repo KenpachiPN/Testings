@@ -4,7 +4,7 @@ const user = document.querySelector('#usuario');
 const passwd = document.querySelector('#contrasena');
 const deposito = document.querySelector('#deposito');
 const multimedia = document.querySelector('#multimedia');
-// const recaptchaResponse = grecaptcha.getResponse();
+const recaptchaResponse = grecaptcha.getResponse();
 const icon = document.querySelector('#textMulti');
 const btnSubmit = document.querySelector('#formulario button[type="submit"]');
 const formulario = document.querySelector('#formulario');
