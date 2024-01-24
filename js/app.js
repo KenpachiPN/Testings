@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', e => {
     const formulario = document.querySelector('#formulario');
     const spinner = document.querySelector('#spinner');
 
+    console.log('djhdf');
 
     //Objeto que guardará los datos y los convierto a json
     const datosMultimedia = {
