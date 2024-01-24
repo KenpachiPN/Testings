@@ -4,7 +4,7 @@ const user = document.querySelector('#usuario');
 const passwd = document.querySelector('#contrasena');
 const deposito = document.querySelector('#deposito');
 const multimedia = document.querySelector('#multimedia');
-const recaptchaResponse = grecaptcha.getResponse();
+const recaptchaResponse = () => grecaptcha.getResponse();
 const icon = document.querySelector('#textMulti');
 const btnSubmit = document.querySelector('#formulario button[type="submit"]');
 const formulario = document.querySelector('#formulario');
@@ -16,8 +16,10 @@ const datosMultimedia = {
     contrasena: '',
     deposit: '',
     multi: '',
-    captcha: ''
+    // captcha: ''
 };
+
+// console.log(recaptchaResponse);
 
 // Eventos 
 document.addEventListener('DOMContentLoaded', e => {
@@ -39,9 +41,9 @@ document.addEventListener('DOMContentLoaded', e => {
     const limpiarForm = () => {
         //Reiniciar el objeto
         datosMultimedia.usuario = '',
-        datosMultimedia.contrasena = '',
-        datosMultimedia.deposit = '',
-        datosMultimedia.multi = '';
+            datosMultimedia.contrasena = '',
+            datosMultimedia.deposit = '',
+            datosMultimedia.multi = '';
 
         // Resetear el form 
         formulario.reset();
@@ -75,6 +77,19 @@ document.addEventListener('DOMContentLoaded', e => {
         e.preventDefault();
         spinner.classList.remove('hidden');
         spinner.classList.add('flex');
+
+        const recaptchaValue = recaptchaResponse();
+        if (!recaptchaValue) {
+            console.log('No has llenado el recapcha mamaguevo');
+            Swal.fire({
+                icon: "error",
+                title: "Validación de reCAPTCHA",
+                text: "Completa la verificación de reCAPTCHA",
+                footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
+            });
+            return;
+        }
+
         setTimeout(() => {
             spinner.classList.add('hidden');
             spinner.classList.remove('flex');
