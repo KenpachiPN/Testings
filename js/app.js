@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', e => {
     const spinner = document.querySelector('#spinner');
 
     console.log('djhdf');
+    console.log('mmx');
 
     //Objeto que guardará los datos y los convierto a json
     const datosMultimedia = {
