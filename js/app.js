@@ -1,5 +1,4 @@
 
-
 // DOM 
 document.addEventListener('DOMContentLoaded', e => {
     // Variables
@@ -7,22 +6,19 @@ document.addEventListener('DOMContentLoaded', e => {
     const passwd = document.querySelector('#contrasena');
     const deposito = document.querySelector('#deposito');
     const multimedia = document.querySelector('#multimedia');
+    const span = document.querySelector('.name-file > span');
     const recaptchaResponse = () => grecaptcha.getResponse();
-    const icon = document.querySelector('#textMulti');
-    const btnSubmit = document.querySelector('#formulario button[type="submit"]');
     const formulario = document.querySelector('#formulario');
     const spinner = document.querySelector('#spinner');
+    const visPrev = document.querySelector('#preVidMul');
     let formData = new FormData();
-
-
 
     //Objeto que guardará los datos y los convierto a json
     const datosMultimedia = {
-        
+
     };
 
     e.preventDefault();
-
 
     // Limpiamos el formulario y reiniciamos el objeto
     const limpiarForm = () => {
@@ -30,61 +26,79 @@ document.addEventListener('DOMContentLoaded', e => {
         formulario.reset();
         // Resetear el valor del input
         multimedia.value = '';
-        icon.textContent = 'Subir archivos';
+        span.textContent = 'Ningún archivo seleccionado';
+        grecaptcha.reset();
     }
-
-    // Revision del objeto
-    const validarForm = () => {
-        const key = Object.keys(datosMultimedia);
-        if (key.length === 4) {
-            btnSubmit.disabled = false;
-            btnSubmit.classList.remove('opacity-50');
-        } else {
-            btnSubmit.disabled = true;
-            btnSubmit.classList.add('opacity-50');
-        }
-    }
-
-    // Validamos los campos de usuario y contraseña
-    const validarCampos = e => {
-        if (e.target.value.trim() === '') {
-            Swal.fire({
-                icon: "error",
-                title: "Llena el campo",
-                text: `¡El campo de ${e.target.id} es obligatorio!`,
-                footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
-            });
-            return;
-        }
-        //Asignar los valores al objeto
-        datosMultimedia[e.target.name] = e.target.value.trim().toLowerCase();
-        validarForm();
-    }
-
-
-    // Agregamos la función de validar
-    user.addEventListener('blur', validarCampos);
-    passwd.addEventListener('blur', validarCampos);
 
     //Envio del formulario 
     const envioFormulario = async e => {
         e.preventDefault();
-        spinner.classList.remove('hidden');
-        spinner.classList.add('flex');
+        const nombreArchivo = multimedia.files[0].name;
+        const extensionArchivo = nombreArchivo.substring(nombreArchivo.lastIndexOf('.'), nombreArchivo.length);
+        const extensionesPermitidas = '.mp4';
         const recaptchaValue = recaptchaResponse();
-        if (!recaptchaValue) {
+        let rutaDelVideo;
+        if (user.value.trim() === '') {
+            Swal.fire({
+                icon: "error",
+                title: "Llena el campo",
+                text: `¡El campo de ${user.id} es obligatorio!`,
+                footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
+            });
+            return;
+        } else if (passwd.value.trim() === '') {
+            Swal.fire({
+                icon: "error",
+                title: "Llena el campo",
+                text: `¡El campo de ${passwd.id} es obligatorio!`,
+                footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
+            });
+            return;
+        } else if (deposito.value === 'Seleccione') {
+            Swal.fire({
+                icon: "error",
+                title: "Selecciona un depósito",
+                text: `¡El campo de ${deposito.id} es obligatorio!`,
+                footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
+            });
+            return;
+        } else if (extensionArchivo !== extensionesPermitidas) {
+            Swal.fire({
+                icon: "error",
+                title: "Selecciona otra extensión",
+                text: "Extensión de archivo invalida",
+                footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
+            });
+            return;
+        } else if (multimedia.files.length === 0) {
+            Swal.fire({
+                icon: "error",
+                title: "Selecciona un archivo",
+                text: `¡El campo de ${multimedia.id} es obligatorio!`,
+                footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
+            });
+            return;
+        } else if (!recaptchaValue) {
             Swal.fire({
                 icon: "error",
                 title: "Validación de reCAPTCHA",
                 text: "Completa la verificación de reCAPTCHA",
                 footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
             });
-            spinner.classList.add('hidden');
-            spinner.classList.remove('flex');
             return;
         }
-        // Asigancion del valor
+        // Agregamos al objeto los valores
+        datosMultimedia.usuario = user.value.trim().toLowerCase();
+        datosMultimedia.contrasena = passwd.value.trim().toLowerCase();
+        datosMultimedia.deposit = deposito.value;
+        datosMultimedia.mutli = multimedia.value;
         datosMultimedia.captcha = 'Este usuario verificó el captcha';
+
+        // Mostramos el spinner
+        spinner.hidden = false;
+        spinner.classList.add('center-spinner');
+        formulario.appendChild(spinner);
+        console.log(datosMultimedia);
 
         const archivoMulti = multimedia.files;
 
@@ -93,13 +107,8 @@ document.addEventListener('DOMContentLoaded', e => {
         formData.append('usuario', datosMultimedia.usuario);
         formData.append('contrasena', datosMultimedia.contrasena);
         formData.append('deposito', datosMultimedia.deposit);
-        for (let i = 0; i < archivoMulti.length; index++) {
+        for (let i = 0; i < archivoMulti.length; i++) {
             formData.append('files[]', archivoMulti[i]);
-        }
-        //ver form
-        console.log("Contenido de FormData antes de envio:");
-        for (let keys of formData.entries()) {
-            console.log(keys[0] + ', ' + keys[1]);
         }
 
         fetch('/MultimediaBack/backend.php', {
@@ -116,6 +125,10 @@ document.addEventListener('DOMContentLoaded', e => {
                         showConfirmButton: false,
                         timer: 1500
                     });
+                    // Obtener la ruta del video desde la respuesta
+                    rutaDelVideo = data.data.Multimedia[0].ruta;
+                    // Almacenar la ruta del video en localStorage
+                    localStorage.setItem('rutaDelVideo', rutaDelVideo);
                     limpiarForm();
                 } else {
                     Swal.fire({
@@ -130,54 +143,36 @@ document.addEventListener('DOMContentLoaded', e => {
                 console.error('Error en la solicitud:', error);
             })
             .finally(() => {
-                spinner.classList.add('hidden');
-                spinner.classList.remove('flex');
-            });
+                spinner.hidden = true;
+                spinner.classList.remove('center-spinner');
+                // Creamos el link
+                const prevMulti = document.createElement('A');
+                prevMulti.href = 'vistaMulti.html';
+                prevMulti.target = '_blank';
+                prevMulti.classList.add('vistaMulti');
+                prevMulti.textContent = 'Visualizar multimedia enviada';
+                formulario.appendChild(prevMulti);
 
-        //ver form
-        console.log("Contenido de FormData despues de envio:");
-        for (let keys of formData.entries()) {
-            console.log(keys[0] + ', ' + keys[1]);
-        }
+                // Eliminamos el link cuando se de click
+                prevMulti.addEventListener('click', () => {
+                    prevMulti.remove();
+                });
+            });
+        // for (let keys of formData.entries()) {
+        //     console.log(keys[0] + ', ' + keys[1]);
+        // }
     }
 
     // Envio del formulario
     formulario.addEventListener('submit', envioFormulario);
 
-    // Agregamos el evento para cuando seleccionen algo
-    deposito.addEventListener('change', e => {
-        if (e.target.value === 'Seleccione') {
-            Swal.fire({
-                icon: "error",
-                title: "Selecciona un deposito",
-                text: `¡El campo de ${e.target.id} es obligatorio!`,
-                footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
-            });
-            return;
+    // // Agregamos el evento para cuando suban un archivo
+    multimedia.addEventListener('change', () => {
+        if (multimedia.files.length === 0) {
+            span.textContent = 'Ningún archivo seleccionado'
+        } else {
+            span.textContent = multimedia.files[0].name;
         }
-        datosMultimedia.deposit = e.target.value;
-        validarForm();
-    });
-
-    // Agregamos el evento para cuando suban un archivo
-    multimedia.addEventListener('change', e => {
-        const nombreArchivo = e.target.files[0].name;
-        const extensionArchivo = nombreArchivo.substring(nombreArchivo.lastIndexOf('.'), nombreArchivo.length);
-        const extensionesPermitidas = '.mp4';
-        if (extensionArchivo !== extensionesPermitidas) {
-            Swal.fire({
-                icon: "error",
-                title: "Selecciona otra extensión",
-                text: "Extensión de archivo invalida",
-                footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
-            });
-            multimedia.value = '';
-            icon.textContent = 'Subir archivos';
-            return;
-        }
-        icon.textContent = `Archivo subido: ${nombreArchivo}`;
-        datosMultimedia.multi = e.target.value;
-        validarForm();
     });
 });
 
