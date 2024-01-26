@@ -165,6 +165,7 @@ document.addEventListener('DOMContentLoaded', e => {
         }
         icon.textContent = `Archivo subido: ${nombreArchivo}`;
         datosMultimedia.multi = e.target.value;
+        formData.append('Multi', e.target.value);
         console.log(datosMultimedia);
         validarForm();
     });
