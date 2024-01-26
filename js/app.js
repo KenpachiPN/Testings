@@ -12,11 +12,13 @@ document.addEventListener('DOMContentLoaded', e => {
     const btnSubmit = document.querySelector('#formulario button[type="submit"]');
     const formulario = document.querySelector('#formulario');
     const spinner = document.querySelector('#spinner');
+    let formData = new FormData();
+
 
 
     //Objeto que guardará los datos y los convierto a json
     const datosMultimedia = {
-
+        
     };
 
     e.preventDefault();
@@ -65,13 +67,11 @@ document.addEventListener('DOMContentLoaded', e => {
     passwd.addEventListener('blur', validarCampos);
 
     //Envio del formulario 
-    const envioFormulario = e => {
+    const envioFormulario = async e => {
         e.preventDefault();
         spinner.classList.remove('hidden');
         spinner.classList.add('flex');
         const recaptchaValue = recaptchaResponse();
-        const formData = new FormData(formulario);
-        console.log(formData);
         if (!recaptchaValue) {
             Swal.fire({
                 icon: "error",
@@ -85,11 +85,23 @@ document.addEventListener('DOMContentLoaded', e => {
         }
         // Asigancion del valor
         datosMultimedia.captcha = 'Este usuario verificó el captcha';
+
+        const archivoMulti = multimedia.files;
+
         // Agregar el valor del captcha al formData
         formData.append('recaptchaResponse', 'Verificado');
+        formData.append('usuario', datosMultimedia.usuario);
+        formData.append('contrasena', datosMultimedia.contrasena);
+        formData.append('deposito', datosMultimedia.deposit);
+        for (let i = 0; i < archivoMulti.length; index++) {
+            formData.append('files[]', archivoMulti[i]);
+        }
+        //ver form
+        console.log("Contenido de FormData antes de envio:");
+        for (let keys of formData.entries()) {
+            console.log(keys[0] + ', ' + keys[1]);
+        }
 
-
-        // Solicitud al servidor
         fetch('/MultimediaBack/backend.php', {
             method: 'POST',
             body: formData
@@ -123,7 +135,7 @@ document.addEventListener('DOMContentLoaded', e => {
             });
 
         //ver form
-        console.log("Contenido de FormData:");
+        console.log("Contenido de FormData despues de envio:");
         for (let keys of formData.entries()) {
             console.log(keys[0] + ', ' + keys[1]);
         }
@@ -165,8 +177,6 @@ document.addEventListener('DOMContentLoaded', e => {
         }
         icon.textContent = `Archivo subido: ${nombreArchivo}`;
         datosMultimedia.multi = e.target.value;
-        formData.append('Multi', e.target.value);
-        console.log(datosMultimedia);
         validarForm();
     });
 });

@@ -20,7 +20,7 @@
     <div class="max-w-3xl mx-auto p-10">
         <h1 class="text-4xl text-white pt-32 text-center">Envio de multimedia UNIDROGAS</h1>
         <div class="bg-white rounded-lg shadow-xl p-10 mt-5">
-            <form id="formulario" class="space-y-3" method="POST">
+            <form id="formulario" class="space-y-3" method="POST" enctype="multipart/form-data">
                 <div class="flex flex-col space-y-2">
                     <label for="usuario" class="font-regular font-medium">Usuario:</label>
                     <input id="usuario" type="text" name="usuario" placeholder="Credenciales de usuario"
@@ -28,7 +28,7 @@
                 </div>
 
                 <div class="flex flex-col space-y-2">
-                    <label for="usuario" class="font-regular font-medium">Contraseña:</label>
+                    <label for="contrasena" class="font-regular font-medium">Contraseña:</label>
                     <input id="contrasena" type="password" name="contrasena" placeholder="Contraseña de usuario"
                         autocomplete="on" class="border border-gray-300 px-3 py-2 rounded-lg" />
                 </div>
