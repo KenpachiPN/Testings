@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', e => {
         spinner.classList.add('flex');
         const recaptchaValue = recaptchaResponse();
         const formData = new FormData(formulario);
+        console.log(formData);
         if (!recaptchaValue) {
             Swal.fire({
                 icon: "error",
@@ -86,7 +87,7 @@ document.addEventListener('DOMContentLoaded', e => {
         datosMultimedia.captcha = 'Este usuario verificó el captcha';
         // Agregar el valor del captcha al formData
         formData.append('recaptchaResponse', 'Verificado');
-        
+
 
         // Solicitud al servidor
         fetch('/MultimediaBack/backend.php', {
@@ -120,6 +121,12 @@ document.addEventListener('DOMContentLoaded', e => {
                 spinner.classList.add('hidden');
                 spinner.classList.remove('flex');
             });
+
+        //ver form
+        console.log("Contenido de FormData:");
+        for (let keys of formData.entries()) {
+            console.log(keys[0] + ', ' + keys[1]);
+        }
     }
 
     // Envio del formulario
