@@ -70,8 +70,8 @@ document.addEventListener('DOMContentLoaded', e => {
         spinner.classList.remove('hidden');
         spinner.classList.add('flex');
         const recaptchaValue = recaptchaResponse();
+        const formData = new FormData(formulario);
         if (!recaptchaValue) {
-            console.log('No has llenado el recapcha mamaguevo');
             Swal.fire({
                 icon: "error",
                 title: "Validación de reCAPTCHA",
@@ -84,18 +84,42 @@ document.addEventListener('DOMContentLoaded', e => {
         }
         // Asigancion del valor
         datosMultimedia.captcha = 'Este usuario verificó el captcha';
-        setTimeout(() => {
-            spinner.classList.add('hidden');
-            spinner.classList.remove('flex');
-            Swal.fire({
-                position: "center",
-                icon: "success",
-                title: "Multimedia enviada con éxito",
-                showConfirmButton: false,
-                timer: 1500
+        // Agregar el valor del captcha al formData
+        formData.append('recaptchaResponse', 'Verificado');
+        
+
+        // Solicitud al servidor
+        fetch('/MultimediaBack/backend.php', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        position: "center",
+                        icon: "success",
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                    limpiarForm();
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: data.message,
+                        footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error en la solicitud:', error);
+            })
+            .finally(() => {
+                spinner.classList.add('hidden');
+                spinner.classList.remove('flex');
             });
-            limpiarForm();
-        }, 3000);
     }
 
     // Envio del formulario
