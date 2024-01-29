@@ -9,8 +9,8 @@ document.addEventListener('DOMContentLoaded', e => {
     const span = document.querySelector('.name-file > span');
     const recaptchaResponse = () => grecaptcha.getResponse();
     const formulario = document.querySelector('#formulario');
+    const btnSubmit = document.querySelector('#formulario button[type="submit"]');
     const spinner = document.querySelector('#spinner');
-    const visPrev = document.querySelector('#preVidMul');
     let formData = new FormData();
 
     //Objeto que guardará los datos y los convierto a json
@@ -33,11 +33,35 @@ document.addEventListener('DOMContentLoaded', e => {
     //Envio del formulario 
     const envioFormulario = async e => {
         e.preventDefault();
-        const nombreArchivo = multimedia.files[0].name;
-        const extensionArchivo = nombreArchivo.substring(nombreArchivo.lastIndexOf('.'), nombreArchivo.length);
-        const extensionesPermitidas = '.mp4';
+        let usuario_exis = false;
         const recaptchaValue = recaptchaResponse();
         let rutaDelVideo;
+        const json_mult = await fetch('/MultimediaBack/credenciales.json');
+        const resp = await json_mult.json();
+        for (const data of resp) {
+            if (user.value.trim().toLowerCase() === data['Nombre']) {
+                usuario_exis = true;
+                if (passwd.value.trim().toLowerCase() === data['Contraseña']) {
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Intenta de nuevo...',
+                        text: '¡Contraseña incorrecta!',
+                        footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
+                    });
+                    return;
+                }
+            } else if (!usuario_exis) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Credenciales incorrectas...',
+                    text: '¡El usuario no existe!',
+                    footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
+                });
+                return;
+            }
+        }
+
         if (user.value.trim() === '') {
             Swal.fire({
                 icon: "error",
@@ -62,22 +86,6 @@ document.addEventListener('DOMContentLoaded', e => {
                 footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
             });
             return;
-        } else if (extensionArchivo !== extensionesPermitidas) {
-            Swal.fire({
-                icon: "error",
-                title: "Selecciona otra extensión",
-                text: "Extensión de archivo invalida",
-                footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
-            });
-            return;
-        } else if (multimedia.files.length === 0) {
-            Swal.fire({
-                icon: "error",
-                title: "Selecciona un archivo",
-                text: `¡El campo de ${multimedia.id} es obligatorio!`,
-                footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
-            });
-            return;
         } else if (!recaptchaValue) {
             Swal.fire({
                 icon: "error",
@@ -98,15 +106,15 @@ document.addEventListener('DOMContentLoaded', e => {
         spinner.hidden = false;
         spinner.classList.add('center-spinner');
         formulario.appendChild(spinner);
-        console.log(datosMultimedia);
 
         const archivoMulti = multimedia.files;
 
         // Agregar el valor del captcha al formData
-        formData.append('recaptchaResponse', 'Verificado');
+        formData.append('recaptchaResponse', datosMultimedia.captcha);
         formData.append('usuario', datosMultimedia.usuario);
         formData.append('contrasena', datosMultimedia.contrasena);
         formData.append('deposito', datosMultimedia.deposit);
+
         for (let i = 0; i < archivoMulti.length; i++) {
             formData.append('files[]', archivoMulti[i]);
         }
@@ -115,8 +123,30 @@ document.addEventListener('DOMContentLoaded', e => {
             method: 'POST',
             body: formData
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error interno",
+                        text: "¡La multimedia no se pudo guardar!",
+                        footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
+                    });
+                    throw new Error('No responde el backend llamen al senior');
+                }
+                return response.json()
+            })
             .then(data => {
+                switch (deposito.value) {
+                    case 'Barr':
+                    case 'Bog':
+                    case 'Buc':
+                    case 'Med':
+                    case 'Mon':
+                    case 'Vall':
+                    default:
+                        console.log('Enviado pa');
+                        break;
+                }
                 if (data.success) {
                     Swal.fire({
                         position: "center",
@@ -126,9 +156,11 @@ document.addEventListener('DOMContentLoaded', e => {
                         timer: 1500
                     });
                     // Obtener la ruta del video desde la respuesta
-                    rutaDelVideo = data.data.Multimedia[0].ruta;
+                    rutaDelVideo = '/MultimediaBack/' + data.data.Multimedia[0].ruta;
+
                     // Almacenar la ruta del video en localStorage
                     localStorage.setItem('rutaDelVideo', rutaDelVideo);
+
                     limpiarForm();
                 } else {
                     Swal.fire({
@@ -140,7 +172,7 @@ document.addEventListener('DOMContentLoaded', e => {
                 }
             })
             .catch(error => {
-                console.error('Error en la solicitud:', error);
+                console.error(error);
             })
             .finally(() => {
                 spinner.hidden = true;
@@ -153,23 +185,57 @@ document.addEventListener('DOMContentLoaded', e => {
                 prevMulti.textContent = 'Visualizar multimedia enviada';
                 formulario.appendChild(prevMulti);
 
+                //Damos la indicación al usuario que si no le da click al link no puede enviar mas multimedia
+                btnSubmit.addEventListener('click', e => {
+                    e.preventDefault();
+                    //Desactivamos el botón
+                    btnSubmit.disabled = true;
+                    Swal.fire({
+                        icon: "error",
+                        title: "No has previsualizado la multimedia",
+                        text: `¡Debes darle click al link para poder enviar nuevamente!`,
+                        footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
+                    });
+                });
+
                 // Eliminamos el link cuando se de click
                 prevMulti.addEventListener('click', () => {
                     prevMulti.remove();
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
                 });
             });
-        // for (let keys of formData.entries()) {
-        //     console.log(keys[0] + ', ' + keys[1]);
-        // }
     }
 
     // Envio del formulario
     formulario.addEventListener('submit', envioFormulario);
 
+
+
     // // Agregamos el evento para cuando suban un archivo
     multimedia.addEventListener('change', () => {
+        const nombreArchivo = multimedia.files[0].name;
+        const extensionArchivo = nombreArchivo.substring(nombreArchivo.lastIndexOf('.'), nombreArchivo.length);
+        const extensionesPermitidas = '.mp4';
         if (multimedia.files.length === 0) {
+            Swal.fire({
+                icon: "error",
+                title: "Selecciona un archivo",
+                text: `¡El campo de ${multimedia.id} es obligatorio!`,
+                footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
+            });
             span.textContent = 'Ningún archivo seleccionado'
+            return;
+        } else if (extensionArchivo !== extensionesPermitidas) {
+            Swal.fire({
+                icon: "error",
+                title: "Selecciona otra extensión",
+                text: "Extensión de archivo invalida",
+                footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
+            });
+            multimedia.value = '';
+            return;
         } else {
             span.textContent = multimedia.files[0].name;
         }

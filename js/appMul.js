@@ -8,10 +8,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Creamos el video
         const prevMultiVideo = document.createElement('video');
         prevMultiVideo.controls = true;
+        prevMultiVideo.add.classList('videoMulti');
 
         // Creamos el source
         const path = document.createElement('source');
         path.src = rutaDelVideo;
+        path.classList.add('.videoMulti');
 
         // Adjuntamos el source al video
         prevMultiVideo.appendChild(path);
