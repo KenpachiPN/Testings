@@ -30,18 +30,73 @@ document.addEventListener('DOMContentLoaded', e => {
         grecaptcha.reset();
     }
 
-    //Envio del formulario 
-    const envioFormulario = async e => {
-        e.preventDefault();
+    const verificarCredenciales = async () => {
+        // Definimos las variables 
         let usuario_exis = false;
-        const recaptchaValue = recaptchaResponse();
-        let rutaDelVideo;
         const json_mult = await fetch('/MultimediaBack/credenciales.json');
         const resp = await json_mult.json();
+        // Recorremos el JSON
         for (const data of resp) {
             if (user.value.trim().toLowerCase() === data['Nombre']) {
                 usuario_exis = true;
                 if (passwd.value.trim().toLowerCase() === data['Contraseña']) {
+                    if (user.value.trim().toLowerCase() === 'unidrogasbarr') {
+                        while (deposito.options.length > 0) {
+                            deposito.remove(0);
+                        }
+                        const newOption = document.createElement('option');
+                        newOption.value = 'Barr';
+                        newOption.textContent = 'Depósito Barranquilla';
+                        deposito.appendChild(newOption);
+                    } else if (user.value.trim().toLowerCase() === 'unidrogasbog') {
+                        while (deposito.options.length > 0) {
+                            deposito.remove(0);
+                        }
+                        const newOption = document.createElement('option');
+                        newOption.value = 'Bog';
+                        newOption.textContent = 'Depósito Bogota';
+                        deposito.appendChild(newOption);
+                    } else if (user.value.trim().toLowerCase() === 'unidrogasbuc') {
+                        while (deposito.options.length > 0) {
+                            deposito.remove(0);
+                        }
+                        const newOption = document.createElement('option');
+                        newOption.value = 'Buc';
+                        newOption.textContent = 'Depósito Bucaramanga';
+                        deposito.appendChild(newOption);
+                    } else if (user.value.trim().toLowerCase() === 'dropopular') {
+                        while (deposito.options.length > 0) {
+                            deposito.remove(0);
+                        }
+                        const newOption = document.createElement('option');
+                        newOption.value = 'Dro';
+                        newOption.textContent = 'Depósito Dropopular';
+                        deposito.appendChild(newOption);
+                    } else if (user.value.trim().toLowerCase() === 'unidrogasmed') {
+                        while (deposito.options.length > 0) {
+                            deposito.remove(0);
+                        }
+                        const newOption = document.createElement('option');
+                        newOption.value = 'Med';
+                        newOption.textContent = 'Depósito Medellin';
+                        deposito.appendChild(newOption);
+                    } else if (user.value.trim().toLowerCase() === 'unidrogasmon') {
+                        while (deposito.options.length > 0) {
+                            deposito.remove(0);
+                        }
+                        const newOption = document.createElement('option');
+                        newOption.value = 'Mon';
+                        newOption.textContent = 'Depósito Monteria';
+                        deposito.appendChild(newOption);
+                    } else if (user.value.trim().toLowerCase() === 'unidrogasvall') {
+                        while (deposito.options.length > 0) {
+                            deposito.remove(0);
+                        }
+                        const newOption = document.createElement('option');
+                        newOption.value = 'Vall';
+                        newOption.textContent = 'Depósito Valledupar';
+                        deposito.appendChild(newOption);
+                    }
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -51,17 +106,25 @@ document.addEventListener('DOMContentLoaded', e => {
                     });
                     return;
                 }
-            } else if (!usuario_exis) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Credenciales incorrectas...',
-                    text: '¡El usuario no existe!',
-                    footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
-                });
-                return;
             }
         }
+        if (!usuario_exis) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Credenciales incorrectas...',
+                text: '¡El usuario no existe!',
+                footer: '<a href="https://soporte.unidrogas.co/zoho/" target="_blank">¿Tienes un problema?</a>'
+            });
+            return;
+        }
+    }
 
+    //Envio del formulario 
+    const envioFormulario = async e => {
+        e.preventDefault();
+        const recaptchaValue = recaptchaResponse();
+        let rutaDelVideo;
+        verificarCredenciales();
         if (user.value.trim() === '') {
             Swal.fire({
                 icon: "error",
@@ -140,11 +203,11 @@ document.addEventListener('DOMContentLoaded', e => {
                     case 'Barr':
                     case 'Bog':
                     case 'Buc':
+                    case 'Dro':
                     case 'Med':
                     case 'Mon':
                     case 'Vall':
                     default:
-                        console.log('Enviado pa');
                         break;
                 }
                 if (data.success) {
@@ -203,17 +266,20 @@ document.addEventListener('DOMContentLoaded', e => {
                     prevMulti.remove();
                     setTimeout(() => {
                         location.reload();
+                        // Eliminar la ruta del video del localStorage
+                        localStorage.removeItem('rutaDelVideo');
                     }, 1500);
                 });
             });
     }
 
+    // cuando se salga del input validar para poner el depósito
+    passwd.addEventListener('blur', verificarCredenciales);
+
     // Envio del formulario
     formulario.addEventListener('submit', envioFormulario);
 
-
-
-    // // Agregamos el evento para cuando suban un archivo
+    // Agregamos el evento para cuando suban un archivo
     multimedia.addEventListener('change', () => {
         const nombreArchivo = multimedia.files[0].name;
         const extensionArchivo = nombreArchivo.substring(nombreArchivo.lastIndexOf('.'), nombreArchivo.length);

@@ -1,10 +1,30 @@
 [
     {
-        "Nombre": "santiago",
-        "Contraseña": "123456"
+        "Nombre": "unidrogasbarr",
+        "Contraseña": "unidrogas$2024"
     },
     {
-        "Nombre": "lobo",
-        "Contraseña": "1234"
+        "Nombre": "unidrogasbog",
+        "Contraseña": "unidrogas$2024"
+    },
+    {
+        "Nombre": "unidrogasbuc",
+        "Contraseña": "unidrogas$2024"
+    },
+    {
+        "Nombre": "dropopular",
+        "Contraseña": "dropopular$2024"
+    },
+    {
+        "Nombre": "unidrogasmed",
+        "Contraseña": "unidrogas$2024"
+    },
+    {
+        "Nombre": "unidrogasmon",
+        "Contraseña": "unidrogas$2024"
+    },
+    {
+        "Nombre": "unidrogasvall",
+        "Contraseña": "unidrogas$2024"
     }
 ]
